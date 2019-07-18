@@ -7,10 +7,10 @@ import paho.mqtt.client as mqtt
 import time
 
 
-class Bridge:
-    def __init__(self, topic, client_id="bridge",
+class MQTT2ROS:
+    def __init__(self, mqtt_topic, client_id="mqtt2ros",
                  host="localhost", port="1883", keepalive=600):
-        self.topic = topic
+        self.mqtt_topic = mqtt_topic
         self.client_id = client_id
         self.host = host
         self.port = port
@@ -32,23 +32,22 @@ class Bridge:
 
     def connect(self):
         while self.rc != 0:
-            try:
-                self.rc = self.client.connect(self.host, self.port,
-                                              self.keepalive)
-            except:
-                print "connection failed"
-            time.sleep(2)
-            self.timeout = self.timeout + 2
+            # try:
+            self.rc = self.client.connect(self.host, self.port,
+                                          self.keepalive)
+            # except:
+            #     print "Connection failed!"
+            time.sleep(1)
 
-    def msg_process(self, msg):
-        pass
+    def forward_msg(self, msg):
+        raise NotImplementedError
 
-    def looping(self, loop_timeout=.1):
-        self.client.loop(loop_timeout)
+    def run(self):
+        self.client.loop_forever()
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
-        self.client.subscribe(self.topic)
+        self.client.subscribe(self.mqtt_topic)
         self.timeout = 0
 
     def on_disconnect(self, client, userdata, rc):
@@ -62,35 +61,30 @@ class Bridge:
                 self.connect()
 
     def on_message(self, client, userdata, msg):
-        self.msg_process(msg)
+        self.forward_msg(msg)
 
     def unsubscribe(self):
-        print
-        " unsubscribing"
-        self.client.unsubscribe(self.topic)
+        print "Unsubscribing"
+        self.client.unsubscribe(self.mqtt_topic)
 
     def disconnect(self):
-        print
-        " disconnecting"
+        print "Disconnecting"
         self.disconnect_flag = True
         self.client.disconnect()
 
     def on_unsubscribe(self, client, userdata, mid):
-        if (self.topic == '#'):
+        if self.mqtt_topic == '#':
             print "Unsubscribed to all the topics"
         else:
-            print "Unsubscribed to " + self.topic
+            print "Unsubscribed to " + self.mqtt_topic
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
-        if (self.topic == '#'):
+        if self.mqtt_topic == '#':
             print "Subscribed to all the topics"
         else:
-            print "Subscribed to " + self.topic
+            print "Subscribed to " + self.mqtt_topic
 
     def hook(self):
         self.unsubscribe()
         self.disconnect()
-        print "shutting down"
-
-    def get_timeout(self):
-        return self.timeout
+        print "Shutting down"
