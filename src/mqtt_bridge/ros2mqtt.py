@@ -12,7 +12,7 @@ class ROS2MQTT(MQTTClient):
         self.ros_msg_type = ros_msg_type
 
         self.rospy_sub = rospy.Subscriber(self.ros_topic, self.ros_msg_type,
-                                          callback=self.forward_msg)
+                                          callback=self.forward_ros_msg)
 
-    def forward_msg(self, msg):
+    def forward_ros_msg(self, msg):
         raise NotImplementedError

@@ -17,7 +17,7 @@ class ActionBridge(MQTT2ROS):
         self.ros_pub = rospy.Publisher(self.ros_topic, self.ros_msg_type,
                                        queue_size=1)
 
-    def forward_msg(self, msg):
+    def forward_mqtt_msg(self, msg):
         """
         Forward mqtt message to ros
         """

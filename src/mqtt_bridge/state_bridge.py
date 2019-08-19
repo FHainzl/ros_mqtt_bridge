@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 
-# import rospy
-# import paho.mqtt.client as mqtt
 import json
 
-import rospy
 from connector.msg import State
-
 from mqtt_bridge.ros2mqtt import ROS2MQTT
 
 
@@ -17,8 +13,12 @@ class StateBridge(ROS2MQTT):
                           mqtt_topic=None, client_id="state_bridge",
                           host=host, port=port, keepalive=keepalive)
 
-    def forward_msg(self, ros_msg):
+    def forward_ros_msg(self, ros_msg):
         # type: (State)->None
+        """
+        Subscribe to state message in ROS and publish it in MQTT
+        :param ros_msg:
+        """
         stamp = ros_msg.header.stamp.to_sec()
         q = ros_msg.q
         dq = ros_msg.dq
@@ -34,6 +34,4 @@ class StateBridge(ROS2MQTT):
         }
 
         mqtt_msg = json.dumps(msg_dict)
-
-        rospy.loginfo("Client should publish now")
-        self.client.publish("/state", mqtt_msg)
+        self.mqtt_client.publish("RL/state", mqtt_msg)
