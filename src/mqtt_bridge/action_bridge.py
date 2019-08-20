@@ -1,3 +1,5 @@
+import json
+
 from mqtt_bridge.mqtt2ros import MQTT2ROS
 import rospy
 
@@ -5,7 +7,7 @@ from connector.msg import Action
 
 
 class ActionBridge(MQTT2ROS):
-    def __init__(self, mqtt_topic, ros_topic,
+    def __init__(self, mqtt_topic="RL/action", ros_topic="/action",
                  mqtt_client_id="action_bridge",
                  host="localhost", port="1883", keepalive=600):
         MQTT2ROS.__init__(self, mqtt_topic, client_id=mqtt_client_id,
@@ -17,10 +19,20 @@ class ActionBridge(MQTT2ROS):
         self.ros_pub = rospy.Publisher(self.ros_topic, self.ros_msg_type,
                                        queue_size=1)
 
-    def forward_mqtt_msg(self, msg):
+    def forward_mqtt_msg(self, action_msg):
         """
         Forward mqtt message to ros
         """
-        # ddq = msg.ddq
-        # ros_msg = Action(ddq = ddq)
-        # self.ros_pub.publish(ros_msg)
+        try:
+            action_json = action_msg.payload
+            action = json.loads(action_json.decode())
+            rospy.loginfo(action)
+
+            stamp = action["stamp"]
+            sent = action["sent"]
+            ddq = action["ddq"]
+
+            # ros_msg = Action(ddq = ddq)
+            # self.ros_pub.publish(ros_msg)
+        except Exception as e:
+            print(e)
