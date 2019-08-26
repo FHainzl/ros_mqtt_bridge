@@ -10,12 +10,15 @@ class MQTTClient:
     def __init__(self, client_id, host, port, keepalive,
                  mqtt_subscribe_topic=None):
         """
-        :param client_id:
-        :param host:
-        :param port:
-        :param keepalive:
-        :param mqtt_subscribe_topic: Optionally subscribe to MQTT topic
+        Check https://pypi.org/project/paho-mqtt/#client for documentation
+
+        :param client_id: unique client id string used when connecting to the broker
+        :param host: the hostname or IP address of the remote broker
+        :param port: the network port of the server host to connect to. Defaults to 1883.
+        :param keepalive: maximum period in seconds allowed between communications with the broker
+        :param mqtt_subscribe_topic: Optional MQTT topic to subscribe to
         """
+
         self.client_id = client_id
         self.host = host
         self.port = port
@@ -34,11 +37,11 @@ class MQTTClient:
         if mqtt_subscribe_topic is not None:
             self.subscribe(mqtt_subscribe_topic)
 
-    def run(self):
+    def spin(self):
         self.mqtt_client.loop_forever()
 
-    def process_msg(self, msg):
-        pass
+    def on_message(self, client, userdata, msg):
+        raise NotImplementedError
 
     def connect(self):
         while self.rc != 0:
@@ -49,15 +52,8 @@ class MQTTClient:
     def subscribe(self, topic):
         self.mqtt_client.subscribe(topic)
 
-    def on_message(self, client, userdata, msg):
-        self.process_msg(msg)
-
     def on_subscribe(self, client, userdata, mid, granted_qos):
         print "Subscribed!"
-
-    def hook(self):
-        self.disconnect()
-        print "Shutting down"
 
     def disconnect(self):
         print "Disconnecting"

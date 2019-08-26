@@ -2,13 +2,12 @@
 
 import rospy
 
-from mqtt_bridge.action_bridge import ActionBridge
+from mqtt_bridge.state_action_bridges.action_bridge import ActionBridge
 
 if __name__ == '__main__':
     rospy.init_node("action_bridge", anonymous=False)
     action_bridge = ActionBridge()
 
-    try:
-        action_bridge.mqtt_client.loop_forever()
-    except KeyboardInterrupt:
-        print("Shutting down")
+    rospy.on_shutdown(action_bridge.mqtt_client.disconnect)
+    rospy.on_shutdown(action_bridge.mqtt_client.loop_stop)
+    action_bridge.spin()

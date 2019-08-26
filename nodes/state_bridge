@@ -2,7 +2,7 @@
 
 import rospy
 
-from mqtt_bridge.state_bridge import StateBridge
+from mqtt_bridge.state_action_bridges.state_bridge import StateBridge
 
 if __name__ == '__main__':
     rospy.init_node("state_bridge", anonymous=False)
